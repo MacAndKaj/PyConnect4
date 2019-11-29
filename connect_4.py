@@ -1,13 +1,12 @@
-import random
+from PlayerAI import *
 
 CR_BLACK = (0, 0, 0)
 CR_WHITE = (255, 255, 255)
 CR_RED = (255, 50, 50)
 CR_BLUE = (150, 150, 255)
 CR_GREEN = (100, 255, 100)
-
-import pygame
-from PlayerAI import *
+CR_GREE_END = (0, 255, 0)
+CR_BLUE_END = (0, 0, 128)
 
 
 class Board:
@@ -25,6 +24,7 @@ class Board:
         self._new_button_pos = None
         self._actions = []
         self._changable = True
+        self._winner = None
 
     def add_action(self, action):
         if action is not None:
@@ -131,37 +131,80 @@ class Board:
                     self._state.get()[row_nr][col_nr] = self._state.get()[row_nr - 1][col_nr]
                     self._state.get()[row_nr][col_nr].move(self._space_for_button[1])
                     self._state.get()[row_nr - 1][col_nr] = None
+
+        winner = None
         if not self._changable:
-            self._check_changability()
+            winner = self._check_changability()
 
         for row in self._state.get():
             for element in row:
                 if element is not None:
                     element.draw(surface)
 
+        if winner is not None:
+            font = pygame.font.Font('freesansbold.ttf', 32)
+            text = font.render(str(winner) + ' wins!', True, CR_GREE_END, CR_BLUE_END)
+            textRect = text.get_rect()
+            textRect.center = (surface.get_size()[0] // 2, surface.get_size()[1] // 2)
+            surface.blit(text, textRect)
+
     def _check_changability(self):
         for col_nr in range(len(self._state.get()[0])):
             for row_nr in range(len(self._state.get()) - 1, 0, -1):
                 if self._state.get()[row_nr - 1][col_nr] is not None and self._state.get()[row_nr][col_nr] is None:
                     return
-        self._changable = True
+        if not self._are_4_connected():
+            self._changable = True
+
+        return self._winner
 
     def reset(self):
         for row in self._state.get():
             for col_nr in range(len(row)):
                 row[col_nr] = None
+        self._winner = None
 
     def _is_full(self, column_nr):
         for row in self._state.get():
             if row[column_nr] is None:
                 return False
-        print("is full")
         return True
 
-    def are_4_connected(self):
-        # for nr_of_row in range(len(self._state.get())):
-        #     for  nr_of_col in self._state.get()[nr_of_row]:
-        #         if self._state[nr_of_col]
+    def _are_4_connected(self):
+        state = self._state.get()
+
+        rows = len(state)
+        for nr_of_row in range(rows):
+            columns = len(state[nr_of_row])
+            for nr_of_col in range(columns):
+
+                if state[nr_of_row][nr_of_col] is not None:
+                    if nr_of_col + 3 < columns:
+                        if state[nr_of_row][nr_of_col + 1] == state[nr_of_row][nr_of_col]:
+                            if state[nr_of_row][nr_of_col + 2] == state[nr_of_row][nr_of_col]:
+                                if state[nr_of_row][nr_of_col + 3] == state[nr_of_row][nr_of_col]:
+                                    self._winner = state[nr_of_row][nr_of_col]
+                                    return True
+
+                        if nr_of_row + 3 < rows:
+                            if state[nr_of_row + 1][nr_of_col + 1] == state[nr_of_row][nr_of_col]:
+                                if state[nr_of_row + 1][nr_of_col + 2] == state[nr_of_row][nr_of_col]:
+                                    if state[nr_of_row + 1][nr_of_col + 3] == state[nr_of_row][nr_of_col]:
+                                        self._winner = state[nr_of_row][nr_of_col]
+                                        return True
+
+                    if nr_of_row + 3 < rows:
+                        if state[nr_of_row + 1][nr_of_col] == state[nr_of_row][nr_of_col]:
+                            if state[nr_of_row + 2][nr_of_col] == state[nr_of_row][nr_of_col]:
+                                if state[nr_of_row + 3][nr_of_col] == state[nr_of_row][nr_of_col]:
+                                    self._winner = state[nr_of_row][nr_of_col]
+                                    return True
+                        if nr_of_col - 3 >= 0:
+                            if state[nr_of_row + 1][nr_of_col - 1] == state[nr_of_row][nr_of_col]:
+                                if state[nr_of_row + 2][nr_of_col - 2] == state[nr_of_row][nr_of_col]:
+                                    if state[nr_of_row + 3][nr_of_col - 3] == state[nr_of_row][nr_of_col]:
+                                        self._winner = state[nr_of_row][nr_of_col]
+                                        return True
         return False
 
     def AI(self, move_owner):
@@ -218,7 +261,6 @@ class Game(object):
                 self._handle_event(event)
             if self._move == 'COMPUTER':
                 col = self._board.AI(self._move)
-                print(col)
                 if col is not None and self._board.pc_drop_button(col) == 'SUCCESS':
                     self._move = 'PLAYER'
 
@@ -242,8 +284,6 @@ class Game(object):
                 self._board.reset()
 
         self._board.add_action(self._actions_def.get(event.type))
-        if self._board.are_4_connected():
-            self._end()
 
     def _end(self):
         self._board.reset()

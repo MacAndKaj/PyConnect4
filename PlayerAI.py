@@ -1,6 +1,5 @@
 import pygame
 import random
-import time
 
 from connect_4 import CR_GREEN, CR_RED
 
@@ -268,7 +267,6 @@ class Tree:
     def minmax(self):
         values = {}
         if len(self._tree) == 1:
-            print(self._tree)
             return self._tree[-1][random.randint(0, len(self._tree[-1]) - 1)]
         for parent in self._tree[-2]:
             if parent.get_type() == 'MAX':
@@ -305,6 +303,8 @@ class MinMaxPlayer:
 
 
 if __name__ == '__main__':
+    import time
+
     buttonDummy = Button('DUMMY', None, None)
     state = State([[None, None, None, None, None, None, None],
                    [None, None, None, None, None, None, None],
