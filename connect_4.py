@@ -295,8 +295,10 @@ class Game(object):
             if self._board.user_drop(mouse_position=pygame.mouse.get_pos()) == 'SUCCESS':
                 self._move = 'COMPUTER'
         if event.type == pygame.KEYUP:
-            if event.key == pygame.K_r:
+            if event.key == pygame.K_n:
                 self._reset()
+            if event.key == pygame.K_r:
+                self._board.reset()
             if event.key == pygame.K_h:
                 col = self._board.AI(self._move)
                 if col is not None and self._board.user_drop(column=col) == 'SUCCESS':

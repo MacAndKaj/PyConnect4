@@ -113,110 +113,117 @@ class State:
 
 
 def h(board, columns, rows):
-    z = 0
+    heuristic_value = 0
+
     for nr_of_row in range(rows):
         for nr_of_col in range(columns):
+            if nr_of_col + 1 < columns:
+                if board[nr_of_row][nr_of_col] == 'PLAYER' and board[nr_of_row][nr_of_col + 1] == 'PLAYER':
+                    heuristic_value += 10
+                if board[nr_of_row][nr_of_col] == 'COMPUTER' and board[nr_of_row][nr_of_col + 1] == 'COMPUTER':
+                    heuristic_value -= 10
 
-            if board[nr_of_row][nr_of_col] is not None:
-                if nr_of_col + 3 < columns:
-                    if board[nr_of_row][nr_of_col + 1] == board[nr_of_row][nr_of_col]:
-                        if board[nr_of_row][nr_of_col + 2] == board[nr_of_row][nr_of_col]:
-                            if board[nr_of_row][nr_of_col + 3] == board[nr_of_row][nr_of_col]:
-                                if board[nr_of_row][nr_of_col] == 'PLAYER':
-                                    z += 1000
-                                else:
-                                    z -= 1000
+    for nr_of_row in range(rows):
+        for nr_of_col in range(columns):
+            if nr_of_row + 1 < rows:
+                if board[nr_of_row][nr_of_col] == 'PLAYER' and board[nr_of_row + 1][nr_of_col] == 'PLAYER':
+                    heuristic_value += 10
+                if board[nr_of_row][nr_of_col] == 'COMPUTER' and board[nr_of_row + 1][nr_of_col] == 'COMPUTER':
+                    heuristic_value -= 10
 
-                    if nr_of_row + 3 < rows:
-                        if board[nr_of_row + 1][nr_of_col + 1] == board[nr_of_row][nr_of_col]:
-                            if board[nr_of_row + 2][nr_of_col + 2] == board[nr_of_row][nr_of_col]:
-                                if board[nr_of_row + 3][nr_of_col + 3] == board[nr_of_row][nr_of_col]:
-                                    if board[nr_of_row][nr_of_col] == 'PLAYER':
-                                        z += 1000
-                                    else:
-                                        z -= 1000
+    for nr_of_row in range(rows):
+        for nr_of_col in range(columns):
+            if nr_of_row + 1 < rows and nr_of_col - 1 >= 0:
+                if board[nr_of_row][nr_of_col] == 'PLAYER' and board[nr_of_row + 1][nr_of_col - 1] == 'PLAYER':
+                    heuristic_value += 10
+                if board[nr_of_row][nr_of_col] == 'COMPUTER' and board[nr_of_row + 1][nr_of_col - 1] == 'COMPUTER':
+                    heuristic_value -= 10
+    for nr_of_row in range(rows):
+        for nr_of_col in range(columns):
+            if nr_of_col + 1 < columns and nr_of_row + 1 < rows:
+
+                if board[nr_of_row][nr_of_col] == 'PLAYER' and board[nr_of_row + 1][nr_of_col + 1] == 'PLAYER':
+                    heuristic_value += 10
+                if board[nr_of_row][nr_of_col] == 'COMPUTER' and board[nr_of_row + 1][nr_of_col + 1] == 'COMPUTER':
+                    heuristic_value -= 10
+    for nr_of_row in range(rows):
+        for nr_of_col in range(columns):
+            if nr_of_col + 2 < columns:
+                if board[nr_of_row][nr_of_col] == 'PLAYER' and board[nr_of_row][nr_of_col + 1] == 'PLAYER' and \
+                        board[nr_of_row][nr_of_col + 2] == 'PLAYER':
+                    heuristic_value += 100
+                if board[nr_of_row][nr_of_col] == 'COMPUTER' and board[nr_of_row][nr_of_col + 1] == 'COMPUTER' and \
+                        board[nr_of_row][nr_of_col + 2] == 'COMPUTER':
+                    heuristic_value -= 100
+
+    for nr_of_row in range(rows):
+        for nr_of_col in range(columns):
+            if nr_of_row + 2 < rows:
+                if board[nr_of_row][nr_of_col] == 'PLAYER' and board[nr_of_row + 1][nr_of_col] == 'PLAYER' and \
+                        board[nr_of_row + 2][nr_of_col] == 'PLAYER':
+                    heuristic_value += 100
+                if board[nr_of_row][nr_of_col] == 'COMPUTER' and board[nr_of_row + 1][nr_of_col] == 'COMPUTER' and \
+                        board[nr_of_row + 2][nr_of_col] == 'COMPUTER':
+                    heuristic_value -= 100
+
+    for nr_of_row in range(rows):
+        for nr_of_col in range(columns):
+            if nr_of_row + 2 < rows and nr_of_col - 2 >= 0:
+                if board[nr_of_row][nr_of_col] == 'PLAYER' and board[nr_of_row + 1][nr_of_col - 1] == 'PLAYER' and \
+                        board[nr_of_row + 2][nr_of_col - 2] == 'PLAYER':
+                    heuristic_value += 100
+                if board[nr_of_row][nr_of_col] == 'COMPUTER' and board[nr_of_row + 1][nr_of_col - 1] == 'COMPUTER' and \
+                        board[nr_of_row + 2][
+                            nr_of_col - 2] == 'COMPUTER':
+                    heuristic_value -= 100
+    for nr_of_row in range(rows):
+        for nr_of_col in range(columns):
+            if nr_of_col + 2 < columns and nr_of_row + 2 < rows:
+                if board[nr_of_row][nr_of_col] == 'PLAYER' and board[nr_of_row + 1][nr_of_col + 1] == 'PLAYER' and \
+                        board[nr_of_row + 2][nr_of_col + 2] == 'PLAYER':
+                    heuristic_value += 100
+                if board[nr_of_row][nr_of_col] == 'COMPUTER' and board[nr_of_row + 1][nr_of_col + 1] == 'COMPUTER' and \
+                        board[nr_of_row + 2][
+                            nr_of_col + 2] == 'COMPUTER':
+                    heuristic_value -= 100
+
+    for nr_of_row in range(rows):
+        for nr_of_col in range(columns):
+            if nr_of_col + 3 < columns:
+                if board[nr_of_row][nr_of_col + 1] == board[nr_of_row][nr_of_col]:
+                    if board[nr_of_row][nr_of_col + 2] == board[nr_of_row][nr_of_col]:
+                        if board[nr_of_row][nr_of_col + 3] == board[nr_of_row][nr_of_col]:
+                            if board[nr_of_row][nr_of_col] == 'PLAYER':
+                                heuristic_value += 1000
+                            else:
+                                heuristic_value -= 1000
 
                 if nr_of_row + 3 < rows:
-                    if board[nr_of_row + 1][nr_of_col] == board[nr_of_row][nr_of_col]:
-                        if board[nr_of_row + 2][nr_of_col] == board[nr_of_row][nr_of_col]:
-                            if board[nr_of_row + 3][nr_of_col] == board[nr_of_row][nr_of_col]:
+                    if board[nr_of_row + 1][nr_of_col + 1] == board[nr_of_row][nr_of_col]:
+                        if board[nr_of_row + 2][nr_of_col + 2] == board[nr_of_row][nr_of_col]:
+                            if board[nr_of_row + 3][nr_of_col + 3] == board[nr_of_row][nr_of_col]:
                                 if board[nr_of_row][nr_of_col] == 'PLAYER':
-                                    z += 1000
+                                    heuristic_value += 1000
                                 else:
-                                    z -= 1000
-                    if nr_of_col - 3 >= 0:
-                        if board[nr_of_row + 1][nr_of_col - 1] == board[nr_of_row][nr_of_col]:
-                            if board[nr_of_row + 2][nr_of_col - 2] == board[nr_of_row][nr_of_col]:
-                                if board[nr_of_row + 3][nr_of_col - 3] == board[nr_of_row][nr_of_col]:
-                                    if board[nr_of_row][nr_of_col] == 'PLAYER':
-                                        z += 1000
-                                    else:
-                                        z -= 1000
-    for x in range(rows):
-        for y in range(columns):
-            if y + 1 < columns:
-                if board[x][y] == 'PLAYER' and board[x][y + 1] == 'PLAYER':
-                    z += 10
-                if board[x][y] == 'COMPUTER' and board[x][y + 1] == 'COMPUTER':
-                    z -= 1
+                                    heuristic_value -= 1000
 
-    for x in range(rows):
-        for y in range(columns):
-            if x + 1 < rows:
-                if board[x][y] == 'PLAYER' and board[x + 1][y] == 'PLAYER':
-                    z += 10
-                if board[x][y] == 'COMPUTER' and board[x + 1][y] == 'COMPUTER':
-                    z -= 1
-
-    for x in range(rows):
-        for y in range(columns):
-            if x + 1 < rows and y - 1 >= 0:
-                if board[x][y] == 'PLAYER' and board[x + 1][y - 1] == 'PLAYER':
-                    z += 10
-                if board[x][y] == 'COMPUTER' and board[x + 1][y - 1] == 'COMPUTER':
-                    z -= 1
-    for x in range(rows):
-        for y in range(columns):
-            if y + 1 < columns and x + 1 < rows:
-
-                if board[x][y] == 'PLAYER' and board[x + 1][y + 1] == 'PLAYER':
-                    z += 10
-                if board[x][y] == 'COMPUTER' and board[x + 1][y + 1] == 'COMPUTER':
-                    z -= 1
-    for x in range(rows):
-        for y in range(columns):
-            if y + 2 < columns:
-                if board[x][y] == 'PLAYER' and board[x][y + 1] == 'PLAYER' and board[x][y + 2] == 'PLAYER':
-                    z += 100
-                if board[x][y] == 'COMPUTER' and board[x][y + 1] == 'COMPUTER' and board[x][y + 2] == 'COMPUTER':
-                    z -= 10
-
-    for x in range(rows):
-        for y in range(columns):
-            if x + 2 < rows:
-                if board[x][y] == 'PLAYER' and board[x + 1][y] == 'PLAYER' and board[x + 2][y] == 'PLAYER':
-                    z += 100
-                if board[x][y] == 'COMPUTER' and board[x + 1][y] == 'COMPUTER' and board[x + 2][y] == 'COMPUTER':
-                    z -= 10
-
-    for x in range(rows):
-        for y in range(columns):
-            if x + 2 < rows and y - 2 >= 0:
-                if board[x][y] == 'PLAYER' and board[x + 1][y - 1] == 'PLAYER' and board[x + 2][y - 2] == 'PLAYER':
-                    z += 100
-                if board[x][y] == 'COMPUTER' and board[x + 1][y - 1] == 'COMPUTER' and board[x + 2][
-                    y - 2] == 'COMPUTER':
-                    z -= 10
-    for x in range(rows):
-        for y in range(columns):
-            if y + 2 < columns and x + 2 < rows:
-                if board[x][y] == 'PLAYER' and board[x + 1][y + 1] == 'PLAYER' and board[x + 2][y + 2] == 'PLAYER':
-                    z += 100
-                if board[x][y] == 'COMPUTER' and board[x + 1][y + 1] == 'COMPUTER' and board[x + 2][
-                    y + 2] == 'COMPUTER':
-                    z -= 10
-
-    return z
+            if nr_of_row + 3 < rows:
+                if board[nr_of_row + 1][nr_of_col] == board[nr_of_row][nr_of_col]:
+                    if board[nr_of_row + 2][nr_of_col] == board[nr_of_row][nr_of_col]:
+                        if board[nr_of_row + 3][nr_of_col] == board[nr_of_row][nr_of_col]:
+                            if board[nr_of_row][nr_of_col] == 'PLAYER':
+                                heuristic_value += 1000
+                            else:
+                                heuristic_value -= 1000
+                if nr_of_col - 3 >= 0:
+                    if board[nr_of_row + 1][nr_of_col - 1] == board[nr_of_row][nr_of_col]:
+                        if board[nr_of_row + 2][nr_of_col - 2] == board[nr_of_row][nr_of_col]:
+                            if board[nr_of_row + 3][nr_of_col - 3] == board[nr_of_row][nr_of_col]:
+                                if board[nr_of_row][nr_of_col] == 'PLAYER':
+                                    heuristic_value += 1000
+                                else:
+                                    heuristic_value -= 1000
+    return heuristic_value
 
 
 class Node:
