@@ -11,7 +11,7 @@ CR_BLUE_END = (0, 0, 128)
 
 class Board:
 
-    def __init__(self):
+    def __init__(self, tree_depth):
         self._state = State([[None, None, None, None, None, None, None],
                              [None, None, None, None, None, None, None],
                              [None, None, None, None, None, None, None],
@@ -25,6 +25,7 @@ class Board:
         self._actions = []
         self._changable = True
         self._winner = None
+        self._tree_depth = tree_depth
 
     def add_action(self, action):
         if action is not None:
@@ -91,38 +92,46 @@ class Board:
 
         pygame.draw.circle(surface, CR_RED, (self._new_button_pos, self._button_radius), self._button_radius)
 
-    def mouse_click(self, mouse_position) -> str:
+    def user_drop(self, mouse_position=None, column=None) -> str:
         if not self._changable:
             return 'FAIL'
-        if self._position[0] < mouse_position[0] < self._position[0] + self._size[0]:
-            column_nr = int((mouse_position[0] - self._position[0] / self._space_for_button[0]) / 100)
-            if self._is_full(column_nr):
-                return 'FAIL'
-            self._drop_button(column_nr,
-                              Button('PLAYER', [
-                                  int(self._position[0] + (
-                                          column_nr * self._space_for_button[0]) + self._button_radius / 2 + (
-                                              self._space_for_button[0] - self._button_radius) / 2),
-                                  int(self._position[1] + self._space_for_button[1] / 2)],
-                                     self._button_radius))
+
+        column_nr = None
+        if mouse_position is not None:
+            if self._position[0] < mouse_position[0] < self._position[0] + self._size[0]:
+                column_nr = int((mouse_position[0] - self._position[0] / self._space_for_button[0]) / 100)
+                if self._is_full(column_nr):
+                    return 'FAIL'
+        elif column is not None:
+            column_nr = column
+        else:
+            return 'FAIL'
+
+        self.drop_button(column_nr,
+                         Button('PLAYER', [
+                             int(self._position[0] + (
+                                     column_nr * self._space_for_button[0]) + self._button_radius / 2 + (
+                                         self._space_for_button[0] - self._button_radius) / 2),
+                             int(self._position[1] + self._space_for_button[1] / 2)],
+                                self._button_radius))
         return 'SUCCESS'
 
     def pc_drop_button(self, column_nr):
         if self._is_full(column_nr) or not self._changable:
             return 'FAIL'
-        self._drop_button(column_nr,
-                          Button('COMPUTER', [
-                              int(self._position[0] + (
-                                      column_nr * self._space_for_button[0]) + self._button_radius / 2 + (
-                                          self._space_for_button[0] - self._button_radius) / 2),
-                              int(self._position[1] + self._space_for_button[1] / 2)],
-                                 self._button_radius))
+        self.drop_button(column_nr,
+                         Button('COMPUTER', [
+                             int(self._position[0] + (
+                                     column_nr * self._space_for_button[0]) + self._button_radius / 2 + (
+                                         self._space_for_button[0] - self._button_radius) / 2),
+                             int(self._position[1] + self._space_for_button[1] / 2)],
+                                self._button_radius))
         return 'SUCCESS'
 
-    def _drop_button(self, column: int, button):
+    def drop_button(self, column: int, button):
         if self._state.get()[0][column] is None:
-            self._state.get()[0][column] = button
             self._changable = False
+            self._state.get()[0][column] = button
 
     def _refresh_and_draw_buttons(self, surface):
         for col_nr in range(len(self._state.get()[0])):
@@ -188,8 +197,8 @@ class Board:
 
                         if nr_of_row + 3 < rows:
                             if state[nr_of_row + 1][nr_of_col + 1] == state[nr_of_row][nr_of_col]:
-                                if state[nr_of_row + 1][nr_of_col + 2] == state[nr_of_row][nr_of_col]:
-                                    if state[nr_of_row + 1][nr_of_col + 3] == state[nr_of_row][nr_of_col]:
+                                if state[nr_of_row + 2][nr_of_col + 2] == state[nr_of_row][nr_of_col]:
+                                    if state[nr_of_row + 3][nr_of_col + 3] == state[nr_of_row][nr_of_col]:
                                         self._winner = state[nr_of_row][nr_of_col]
                                         return True
 
@@ -209,16 +218,17 @@ class Board:
 
     def AI(self, move_owner):
         if self._changable:
-            tree = Tree(Node(self._state, 0, 'MAX', None, move_owner))
-            tree.construct(2)
+            tree = Tree(Node(self._state, h(self._state.get(), 7, 6), 'MAX', None, move_owner))
+            tree.construct(self._tree_depth)
             new_state = tree.minmax()
-            return self._state.get_column_to_new_state(new_state[0].get_state().get())
+            return self._state.get_column_to_new_state(new_state.get_state().get())
         return None
 
 
 class Game(object):
     def __init__(self, size=None) -> None:
         self._running = False
+        self._started = True
         self._displaySurface = None
         if size is not None:
             self._size = (self._width, self._height) = size
@@ -241,16 +251,20 @@ class Game(object):
         else:
             self._move = 'COMPUTER'
 
-    def init(self, name=None, icon=None):
-        pygame.init()
-        self._displaySurface: pygame.Surface = pygame.display.set_mode(self._size, pygame.HWSURFACE | pygame.DOUBLEBUF)
+    def init(self, tree_depth, name=None, icon=None):
+        if not self._running:
+            pygame.init()
+            self._displaySurface: pygame.Surface = pygame.display.set_mode(self._size,
+                                                                           pygame.HWSURFACE | pygame.DOUBLEBUF)
 
-        self._board = Board()
-        self._board.init(self._displaySurface)
-        if name is not None:
-            pygame.display.set_caption(name, name)
-        if icon is not None:
-            pygame.display.set_icon(icon)
+            self._board = Board(tree_depth)
+            self._board.init(self._displaySurface)
+            if name is not None:
+                pygame.display.set_caption(name, name)
+            if icon is not None:
+                pygame.display.set_icon(icon)
+
+            self._started = True
 
     def run(self):
         self._running = True
@@ -276,21 +290,39 @@ class Game(object):
     def _handle_event(self, event: pygame.event):
         if event.type == pygame.QUIT or event.type == pygame.K_ESCAPE:
             self._running = False
+            self._started = False
         if event.type == pygame.MOUSEBUTTONUP:
-            if self._board.mouse_click(pygame.mouse.get_pos()) == 'SUCCESS':
+            if self._board.user_drop(mouse_position=pygame.mouse.get_pos()) == 'SUCCESS':
                 self._move = 'COMPUTER'
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_r:
-                self._board.reset()
+                self._reset()
+            if event.key == pygame.K_h:
+                col = self._board.AI(self._move)
+                if col is not None and self._board.user_drop(column=col) == 'SUCCESS':
+                    self._move = 'COMPUTER'
 
         self._board.add_action(self._actions_def.get(event.type))
 
-    def _end(self):
+    def _reset(self):
         self._board.reset()
+        if random.randint(0, 1) == 0:
+            self._move = 'PLAYER'
+        else:
+            self._move = 'COMPUTER'
+        self._running = False
+
+    def is_started(self):
+        return self._started
 
 
 if __name__ == '__main__':
     game = Game()
-
-    game.init(name="Connect 4")
-    game.run()
+    while game.is_started():
+        level = input("Choose level[1-5]:")
+        lev = int(level)
+        while 5 < lev < 1:
+            level = input("Wrong value! Choose level[1-5]:")
+            lev = int(level)
+        game.init(name="Connect 4", tree_depth=lev + 1)
+        game.run()

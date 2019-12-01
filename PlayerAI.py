@@ -9,9 +9,9 @@ DEEP = 5
 def max_list(l_in):
     l_out = []
     for item in l_in:
-        if len(l_out) == 0 or item > l_out[0]:
+        if len(l_out) == 0 or item[0] > l_out[0][0]:
             l_out = [item]
-        elif item == l_out[0]:
+        elif item[0] == l_out[0][0]:
             l_out.append(item)
 
     return l_out
@@ -20,9 +20,9 @@ def max_list(l_in):
 def min_list(l_in):
     l_out = []
     for item in l_in:
-        if len(l_out) == 0 or l_out[0] > item:
+        if len(l_out) == 0 or l_out[0][0] > item[0]:
             l_out = [item]
-        elif item == l_out[0]:
+        elif item[0] == l_out[0][0]:
             l_out.append(item)
 
     return l_out
@@ -114,69 +114,107 @@ class State:
 
 def h(board, columns, rows):
     z = 0
+    for nr_of_row in range(rows):
+        for nr_of_col in range(columns):
+
+            if board[nr_of_row][nr_of_col] is not None:
+                if nr_of_col + 3 < columns:
+                    if board[nr_of_row][nr_of_col + 1] == board[nr_of_row][nr_of_col]:
+                        if board[nr_of_row][nr_of_col + 2] == board[nr_of_row][nr_of_col]:
+                            if board[nr_of_row][nr_of_col + 3] == board[nr_of_row][nr_of_col]:
+                                if board[nr_of_row][nr_of_col] == 'PLAYER':
+                                    z += 1000
+                                else:
+                                    z -= 1000
+
+                    if nr_of_row + 3 < rows:
+                        if board[nr_of_row + 1][nr_of_col + 1] == board[nr_of_row][nr_of_col]:
+                            if board[nr_of_row + 2][nr_of_col + 2] == board[nr_of_row][nr_of_col]:
+                                if board[nr_of_row + 3][nr_of_col + 3] == board[nr_of_row][nr_of_col]:
+                                    if board[nr_of_row][nr_of_col] == 'PLAYER':
+                                        z += 1000
+                                    else:
+                                        z -= 1000
+
+                if nr_of_row + 3 < rows:
+                    if board[nr_of_row + 1][nr_of_col] == board[nr_of_row][nr_of_col]:
+                        if board[nr_of_row + 2][nr_of_col] == board[nr_of_row][nr_of_col]:
+                            if board[nr_of_row + 3][nr_of_col] == board[nr_of_row][nr_of_col]:
+                                if board[nr_of_row][nr_of_col] == 'PLAYER':
+                                    z += 1000
+                                else:
+                                    z -= 1000
+                    if nr_of_col - 3 >= 0:
+                        if board[nr_of_row + 1][nr_of_col - 1] == board[nr_of_row][nr_of_col]:
+                            if board[nr_of_row + 2][nr_of_col - 2] == board[nr_of_row][nr_of_col]:
+                                if board[nr_of_row + 3][nr_of_col - 3] == board[nr_of_row][nr_of_col]:
+                                    if board[nr_of_row][nr_of_col] == 'PLAYER':
+                                        z += 1000
+                                    else:
+                                        z -= 1000
     for x in range(rows):
         for y in range(columns):
             if y + 1 < columns:
                 if board[x][y] == 'PLAYER' and board[x][y + 1] == 'PLAYER':
-                    z = z + 3
+                    z += 10
                 if board[x][y] == 'COMPUTER' and board[x][y + 1] == 'COMPUTER':
-                    z = z - 3
+                    z -= 1
 
     for x in range(rows):
         for y in range(columns):
             if x + 1 < rows:
                 if board[x][y] == 'PLAYER' and board[x + 1][y] == 'PLAYER':
-                    z = z + 3
+                    z += 10
                 if board[x][y] == 'COMPUTER' and board[x + 1][y] == 'COMPUTER':
-                    z = z - 3
+                    z -= 1
 
     for x in range(rows):
         for y in range(columns):
             if x + 1 < rows and y - 1 >= 0:
                 if board[x][y] == 'PLAYER' and board[x + 1][y - 1] == 'PLAYER':
-                    z = z + 3
+                    z += 10
                 if board[x][y] == 'COMPUTER' and board[x + 1][y - 1] == 'COMPUTER':
-                    z = z - 3
+                    z -= 1
     for x in range(rows):
         for y in range(columns):
             if y + 1 < columns and x + 1 < rows:
 
                 if board[x][y] == 'PLAYER' and board[x + 1][y + 1] == 'PLAYER':
-                    z = z + 3
+                    z += 10
                 if board[x][y] == 'COMPUTER' and board[x + 1][y + 1] == 'COMPUTER':
-                    z = z - 3
+                    z -= 1
     for x in range(rows):
         for y in range(columns):
             if y + 2 < columns:
                 if board[x][y] == 'PLAYER' and board[x][y + 1] == 'PLAYER' and board[x][y + 2] == 'PLAYER':
-                    z = z + 10
+                    z += 100
                 if board[x][y] == 'COMPUTER' and board[x][y + 1] == 'COMPUTER' and board[x][y + 2] == 'COMPUTER':
-                    z = z - 10
+                    z -= 10
 
     for x in range(rows):
         for y in range(columns):
             if x + 2 < rows:
                 if board[x][y] == 'PLAYER' and board[x + 1][y] == 'PLAYER' and board[x + 2][y] == 'PLAYER':
-                    z = z + 10
+                    z += 100
                 if board[x][y] == 'COMPUTER' and board[x + 1][y] == 'COMPUTER' and board[x + 2][y] == 'COMPUTER':
-                    z = z - 10
+                    z -= 10
 
     for x in range(rows):
         for y in range(columns):
             if x + 2 < rows and y - 2 >= 0:
                 if board[x][y] == 'PLAYER' and board[x + 1][y - 1] == 'PLAYER' and board[x + 2][y - 2] == 'PLAYER':
-                    z = z + 10
+                    z += 100
                 if board[x][y] == 'COMPUTER' and board[x + 1][y - 1] == 'COMPUTER' and board[x + 2][
                     y - 2] == 'COMPUTER':
-                    z = z - 10
+                    z -= 10
     for x in range(rows):
         for y in range(columns):
             if y + 2 < columns and x + 2 < rows:
                 if board[x][y] == 'PLAYER' and board[x + 1][y + 1] == 'PLAYER' and board[x + 2][y + 2] == 'PLAYER':
-                    z = z + 10
+                    z += 100
                 if board[x][y] == 'COMPUTER' and board[x + 1][y + 1] == 'COMPUTER' and board[x + 2][
                     y + 2] == 'COMPUTER':
-                    z = z - 10
+                    z -= 10
 
     return z
 
@@ -211,7 +249,8 @@ class Node:
         node_type = 'MIN' if self._type == 'MAX' else 'MAX'
         next_move_owner = get_next_move_owner(self._owner)
         for s in states:
-            self._children.append(Node(s, heuristics(s.get(), 7, 6), node_type, self, next_move_owner))
+            val = heuristics(s.get(), 7, 6) if heuristics is not None else -1
+            self._children.append(Node(s, val, node_type, self, next_move_owner))
         return self._children
 
     def __str__(self) -> str:
@@ -244,12 +283,12 @@ class Tree:
             return
 
         for i in range(1, depth):
-            self._add_level()
+            self._add_level(h if i == (depth - 1) else None)
 
-    def _add_level(self):
+    def _add_level(self, heur):
         level = []
         for node in self._tree[-1]:
-            level += node.create_children(h)
+            level += node.create_children(heur)
         self._tree.append(level)
 
     def __str__(self) -> str:
@@ -265,26 +304,33 @@ class Tree:
         return tree_str
 
     def minmax(self):
+        chosen_node = None
+        if len(self._tree) == 0:
+            return None
         values = {}
         if len(self._tree) == 1:
             return self._tree[-1][random.randint(0, len(self._tree[-1]) - 1)]
         for parent in self._tree[-2]:
             if parent.get_type() == 'MAX':
-                temp = max_list(parent.get_children())
+                temp = max_list([(node, None) for node in parent.get_children()])
             else:
-                temp = min_list(parent.get_children())
-            values[parent] = temp[random.randint(0, len(temp) - 1)]
+                temp = min_list([(node, None) for node in parent.get_children()])
+            values[parent] = temp[random.randint(0, len(temp) - 1)][0].get_val()
+        print(values)
         for i in range(len(self._tree) - 3, -1, -1):
             new_values = {}
             for parent in self._tree[i]:
                 if parent.get_type() == 'MAX':
-                    temp = max_list(parent.get_children())
+                    temp = max_list([(values[child], child) for child in parent.get_children()])
                 else:
-                    temp = min_list(parent.get_children())
+                    temp = min_list([(values[child], child) for child in parent.get_children()])
                 new_values[parent] = temp[random.randint(0, len(temp) - 1)]
+                if i == 0:
+                    chosen_node = new_values[parent][1]
             values = new_values
-        assert len(values) == 1, "Only one value should be returned"
-        return list(values.values())
+        print(values)
+        assert chosen_node is not None, "There must be chosen one node"
+        return chosen_node
 
     def tree_height(self):
         return len(self._tree)
